@@ -69,4 +69,6 @@ curl -X POST http://localhost:3010/api/demo -H "Content-Type: application/json" 
 curl http://localhost:3010/api/health
 ```
 
+When `QWEN_CLOUD_API_KEY` or `DASHSCOPE_API_KEY` is configured, `POST /api/demo` calls Qwen Cloud Chat Completions through the OpenAI-compatible endpoint and returns `answerSource: "qwen-cloud-live"`. Without a key, it returns `answerSource: "synthetic-fallback"` so the public repo remains runnable without secrets.
+
 See `docs/` for Devpost copy, architecture, demo script, and deployment proof checklist.

@@ -78,7 +78,7 @@ export default function Page() {
               <h1>Support agent for Vietnamese SMEs that remembers, checks, and escalates.</h1>
               <p>
                 Huyen is spun out from DOSClaw as a focused hackathon product: one agent, one customer support outcome,
-                powered by Qwen Cloud and orchestrated through OpenClaw.
+                powered by a live Qwen Cloud adapter and orchestrated through OpenClaw.
               </p>
             </div>
             <img className="productVisual" src="/images/huyen-dashboard.png" alt="Huyen support operations dashboard" />
@@ -119,7 +119,7 @@ export default function Page() {
             <h2>Separate product boundary</h2>
             <p>
               The public submission can ship this Huyen slice without exposing the private DOS-AI monorepo: runtime
-              adapter, Qwen Cloud env contract, synthetic demo data, and deployment proof.
+              adapter, optional live Qwen Cloud calls, synthetic fallback data, and deployment proof.
             </p>
             <div className="stackGrid">
               {stack.map(([name, value]) => (

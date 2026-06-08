@@ -34,6 +34,8 @@ https://dashscope-intl.aliyuncs.com/compatible-mode/v1
 
 OpenClaw is the runtime and channel orchestrator. DOSClaw injects a `qwen-cloud` OpenAI-compatible provider into the OpenClaw config for opt-in submission agents and sets `qwen-cloud/<model>` as the primary model.
 
+The public demo API also includes a live Qwen Cloud adapter. When `QWEN_CLOUD_API_KEY` or `DASHSCOPE_API_KEY` is configured, `/api/demo` sends the selected scenario and tool evidence to Qwen Cloud Chat Completions. Without a key, it returns the same synthetic fallback payload so the public repository remains buildable by judges without secrets.
+
 ## Architecture
 
 ```mermaid
@@ -75,6 +77,7 @@ Vietnamese SMEs often run support through chat channels and informal staff hando
 
 - Source code: `https://github.com/JOY/huyen-qwen-cloud`
 - Qwen Cloud provider contract: `https://github.com/JOY/huyen-qwen-cloud/blob/main/docs/huyen-agent-config.md`
+- Live Qwen Cloud adapter: `https://github.com/JOY/huyen-qwen-cloud/blob/main/src/lib/qwen.ts`
 - Demo API: `https://github.com/JOY/huyen-qwen-cloud/blob/main/src/app/api/demo/route.ts`
 
 ## Submission Checklist
