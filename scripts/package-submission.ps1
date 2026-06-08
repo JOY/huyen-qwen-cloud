@@ -28,6 +28,7 @@ try {
         "README.md",
         "docs/devpost-draft.md",
         "docs/demo-script.md",
+        "docs/video-recording-packet.md",
         "docs/architecture.mmd",
         "docs/deployment-proof.md",
         "docs/judging-packet.md",

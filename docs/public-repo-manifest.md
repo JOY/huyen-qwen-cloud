@@ -14,6 +14,7 @@ The public hackathon repository should be a sanitized slice, not a dump of the p
 - `docs/hackathons/qwen-cloud-2026/devpost-draft.md`
 - `docs/hackathons/qwen-cloud-2026/judging-packet.md`
 - `docs/hackathons/qwen-cloud-2026/demo-script.md`
+- `docs/hackathons/qwen-cloud-2026/video-recording-packet.md`
 - `docs/hackathons/qwen-cloud-2026/architecture.mmd`
 - `docs/hackathons/qwen-cloud-2026/alibaba-cloud-deploy.md`
 - `docs/hackathons/qwen-cloud-2026/alibaba-ram-policy-huyen-deploy.json`

@@ -26,7 +26,7 @@ This packet maps Huyen directly to the Qwen Cloud hackathon submission requireme
 | Qwen Cloud usage | Ready | `src/lib/qwen.ts`, `src/app/api/demo/route.ts`, `docs/huyen-agent-config.md` |
 | Alibaba Cloud backend proof | Blocked | Current RAM user is denied ACR, Function Compute, and ECI actions |
 | Architecture diagram | Ready | `docs/architecture.mmd` |
-| About 3-minute demo video | Script ready | `docs/demo-script.md` |
+| About 3-minute demo video | Recording packet ready | `docs/demo-script.md`, `docs/video-recording-packet.md` |
 | Text description | Ready | `docs/devpost-draft.md` |
 | Track identification | Ready | Track 4 primary in `docs/devpost-draft.md` |
 | Smoke proof for live demo | Automated | `scripts/smoke-scenarios.ps1` writes `docs/proof/smoke-latest.json` |
@@ -51,6 +51,7 @@ The project is positioned as a production SME support autopilot rather than a ge
 Evidence:
 
 - `docs/demo-script.md`
+- `docs/video-recording-packet.md`
 - `docs/architecture.mmd`
 - `README.md`
 
