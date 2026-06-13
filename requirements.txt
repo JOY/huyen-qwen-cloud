@@ -1,5 +1,6 @@
 agentscope>=2.0.1
 openai>=1.40.0
+mem0ai>=0.1.0          # memory substrate, configured for DashScope - see docs/MEMORY_STACK.md
 asyncpg>=0.30.0
 fastapi>=0.115.0
 uvicorn[standard]>=0.32.0
