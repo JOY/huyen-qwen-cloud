@@ -1,109 +1,75 @@
-# Huyen
+# Huyen - a Vietnamese SME support agent that actually remembers its customers
 
-Huyen is a Qwen Cloud-powered Vietnamese SME support autopilot for the Qwen Cloud hackathon.
+Huyen is a customer-support agent for Vietnamese small businesses, built for the **Global AI
+Hackathon Series with Qwen Cloud** (**MemoryAgent track**). Its differentiator is a real
+**per-customer persistent memory** engine: Huyen remembers each customer across sessions, recalls
+the right facts in a limited context window, and forgets stale ones - so returning customers are
+never asked the same thing twice.
 
-## Demo
+Built on **AgentScope 2.0** (Alibaba's open-source agent framework) and **Qwen Cloud / DashScope**
+(`qwen3.6-plus` for reasoning, `text-embedding-v4` for semantic memory), deployed on **Alibaba Cloud**.
 
-The app demonstrates three production customer-support workflows:
+## Why it fits MemoryAgent
 
-- returning customer memory
-- live knowledge lookup
-- honest human handoff
+The track rewards autonomous experience accumulation, efficient storage/retrieval, timely
+forgetting, and recalling critical memories within a limited context window. Huyen implements all
+four with a hybrid memory:
+
+- **Profile (structured, durable):** stable facts per customer (name, preferences, allergies, last
+  order). Updated by an LLM extraction step after each turn; conflicting facts are overwritten.
+- **Episodic (semantic, decaying):** concise summaries of past interactions, embedded into
+  **pgvector** with an importance score and timestamp.
+- **Recall in a limited context:** before replying, Huyen assembles a compact block = full profile
+  + top-K episodic memories ranked by a blend of **semantic similarity and recency** - only that
+  block enters the prompt, not the whole history.
+- **Forgetting / consolidation:** episodic memories carry a recency x importance decay; faded ones
+  are pruned while durable facts persist in the profile.
 
 ## Architecture
 
-OpenClaw orchestrates the runtime container and chat channels. DOSClaw supplies memory, knowledge, and handoff tools. Qwen Cloud powers the primary reasoning path through the OpenAI-compatible DashScope endpoint.
+```
+Web chat UI (customer selector + new-session + "memory recalled" panel)
+        |  HTTP / SSE
+FastAPI  --  AgentScope Agent (Qwen qwen3.6-plus via DashScope)
+        |        |  tools: knowledge_search (FAQ RAG), human_handoff, search_memory
+        |   MemoryService  --  recall / record / consolidate
+        |        |
+   Postgres + pgvector  (profile, episodic_memory, knowledge, handoffs)   [on Alibaba Cloud]
+        |
+   DashScope: qwen3.6-plus (chat) + text-embedding-v4 (embeddings)        [Qwen Cloud]
+```
 
-## Run Locally
+Everything runs on Alibaba Cloud (ECS + Dockerized Postgres, or RDS); Qwen Cloud provides the model
+and embeddings. The proof-of-Alibaba code file is [`huyen/model.py`](huyen/model.py).
+
+## Status
+
+Under active construction. Project scaffold, DB schema, and the verified AgentScope 2.0.1 API
+reference are in place. See **[HANDOFF.md](HANDOFF.md)** for the build brief and
+**[docs/implementation-plan.md](docs/implementation-plan.md)** for the task-by-task plan.
+
+## Run locally
+
+Prerequisites: Python 3.11+ (3.14 works), Docker, and a Qwen Cloud `DASHSCOPE_API_KEY`.
 
 ```bash
-npm ci
-npm run dev
+cp .env.example .env          # fill in DASHSCOPE_API_KEY
+docker compose up -d db       # Postgres + pgvector
+python -m venv .venv && . .venv/Scripts/activate   # (Windows: .venv\Scripts\activate)
+pip install -r requirements.txt
+# apply schema + seed, then run the seed-embeddings script and the app (see docs/implementation-plan.md)
+uvicorn huyen.app:app --port 8092
 ```
 
-Open `http://localhost:3010`.
+## Docs
 
-## Build
+- [HANDOFF.md](HANDOFF.md) - build brief (start here if you are implementing)
+- [docs/AGENTSCOPE_API.md](docs/AGENTSCOPE_API.md) - verified AgentScope 2.0.1 API
+- [docs/implementation-plan.md](docs/implementation-plan.md) - task-by-task TDD plan
+- [docs/spec-design.md](docs/spec-design.md) - design rationale
+- [docs/hackathon-reference.md](docs/hackathon-reference.md) - hackathon rules and deliverables
+- [docs/legacy/](docs/legacy/) - assets from a prior, abandoned Next.js attempt (reference only)
 
-```bash
-npm run build
-```
+## License
 
-## Container
-
-```bash
-docker build -t huyen-qwen-cloud:local .
-docker run --rm -p 3010:3010 huyen-qwen-cloud:local
-curl http://localhost:3010/api/health
-```
-
-## Verify
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-public.ps1
-```
-
-## Smoke a Running Demo
-
-```powershell
-$env:HUYEN_URL = "http://localhost:3010"
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/smoke-scenarios.ps1
-```
-
-The smoke script checks health, all three scenarios, Qwen model evidence, MCP tool evidence, and writes `docs/proof/smoke-latest.json`.
-
-## Package Submission Evidence
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/package-submission.ps1
-```
-
-The package includes Devpost copy, architecture, deployment proof checklist, RAM policy, preflight/smoke scripts, and any JSON smoke evidence under `docs/proof/`.
-
-For judges, `docs/judging-packet.md` maps the project to the hackathon requirements and scoring criteria. For the required public demo video, use `docs/video-recording-packet.md`. Optional blog and social drafts live in `docs/blog-post-draft.md` and `docs/social-post-draft.md`.
-
-## Push to Alibaba Cloud Container Registry
-
-```bash
-export ACR_REGISTRY=<registry-domain>
-export ACR_NAMESPACE=<namespace>
-export ACR_REPOSITORY=huyen-qwen-cloud
-export IMAGE_TAG=hackathon-2026-06-08
-bash scripts/deploy-acr.sh
-```
-
-## Deploy to Function Compute
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/deploy-fc.ps1 `
-  -Image "registry.ap-southeast-1.aliyuncs.com/<namespace>/huyen-qwen-cloud:hackathon-2026-06-08"
-```
-
-## Deploy to Elastic Container Instance
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/deploy-eci.ps1 `
-  -Image "registry.ap-southeast-1.aliyuncs.com/<namespace>/huyen-qwen-cloud:hackathon-2026-06-08" `
-  -VSwitchId "<vswitch-id>" `
-  -SecurityGroupId "<security-group-id>"
-```
-
-## Environment
-
-```bash
-QWEN_CLOUD_API_KEY=
-QWEN_CLOUD_BASE_URL=https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-QWEN_CLOUD_MODEL=qwen3.7-plus
-```
-
-## Demo API
-
-```bash
-curl http://localhost:3010/api/demo
-curl -X POST http://localhost:3010/api/demo -H "Content-Type: application/json" -d '{"scenario":"handoff"}'
-curl http://localhost:3010/api/health
-```
-
-When `QWEN_CLOUD_API_KEY` or `DASHSCOPE_API_KEY` is configured, `POST /api/demo` calls Qwen Cloud Chat Completions through the OpenAI-compatible endpoint and returns `answerSource: "qwen-cloud-live"`. Without a key, it returns `answerSource: "synthetic-fallback"` so the public repo remains runnable without secrets.
-
-See `docs/` for Devpost copy, architecture, demo script, and deployment proof checklist.
+MIT - see [LICENSE](LICENSE).
